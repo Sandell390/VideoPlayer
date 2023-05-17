@@ -4,6 +4,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using Xabe.FFmpeg;
@@ -38,15 +39,15 @@ Func<string,string> outputFileNameBuilder = number =>
 // Console.WriteLine("DOne");
 // Console.ReadKey();
 //             
-IMediaInfo info = await FFmpeg.GetMediaInfo(@"C:\video\video123.mp4").ConfigureAwait(false);
-IVideoStream videoStream = info.VideoStreams.First()?.SetCodec(VideoCodec.png);
+IMediaInfo info = await FFmpeg.GetMediaInfo(@"C:\video\video.mp4").ConfigureAwait(false);
+IVideoStream videoStream = info.VideoStreams.First()?.SetCodec(VideoCodec.png).SetSize(96, 72);
 
-IConversionResult conversionResult = await FFmpeg.Conversions.New()
-    .AddStream(videoStream)
-    .ExtractEveryNthFrame(1, outputFileNameBuilder)
-    .Start();
+//IConversionResult conversionResult = await FFmpeg.Conversions.New()
+ //   .AddStream(videoStream)
+ //   .ExtractEveryNthFrame(1, outputFileNameBuilder)
+ //   .Start();
 
-Console.WriteLine("DOne");
+Console.WriteLine("DOne making images");
 
 
 Thread.Sleep(400);
@@ -63,7 +64,7 @@ foreach (string file in files)
 }
 
 
-string grayRamp = "@%#*=-:. ";
+string grayRamp = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. ";
 
 double rampLength = (double)grayRamp.Length;
 Func<int, char> GetGrayScaleChar = (Func<int, char>)(grayScale => grayRamp[Convert.ToInt32(Math.Ceiling((rampLength - 1.0) * (double)grayScale / (double)byte.MaxValue))]);
@@ -78,6 +79,8 @@ int boxY = 1;
 int LoopTimesX = bitmapList[0].Width / boxX;
 int LoopTimesY = bitmapList[0].Height / boxY;
 
+
+Console.ReadKey();
 Console.Clear();
 foreach (Bitmap bitmap in bitmapList)
 {
@@ -124,11 +127,17 @@ Console.Clear();
 
 for (int i = 0; i < 10; i++)
 {
+    Stopwatch stopwatch = new Stopwatch();
     foreach (string frame in frames)
     {
-        Thread.Sleep(16);
+        int sleepTime = Convert.ToInt32((1 - (stopwatch.ElapsedMilliseconds / 41.6)) * 41.6);
+        if (sleepTime <= -1)
+            sleepTime *= -1;
+        Thread.Sleep(sleepTime);
+        stopwatch.Restart();
         Console.WriteLine(frame);
         Console.SetCursorPosition(0,0);
+        stopwatch.Stop();
     }
 }
 
